@@ -241,6 +241,22 @@ const output = await reconnected.shell("echo reconnected");
 console.log(output.stdout().trim());
 ```
 
+### TLS Interception
+
+```typescript
+await using sandbox = await Sandbox.builder("tls-inspect")
+  .image("python")
+  .network((n) => n.tls((t) =>
+    t.bypass("*.googleapis.com")
+      .verifyUpstream(true)
+      .interceptedPorts([443])
+      .upstreamCaCert("/etc/ssl/corp-root.pem")
+      .upstreamCaCertFor("api.internal", "./certs/api-ca.pem")
+      .verifyUpstreamFor("*.preview.internal", false),
+  ))
+  .create();
+```
+
 ### Metrics
 
 ```typescript
